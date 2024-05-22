@@ -81,8 +81,8 @@ class Main {
 				System.out.print("Quantità - ");
 				movimento.qntProdotto=sc.nextInt();
 				sc.nextLine();
-				//System.out.print("Codice movimento - ");
 				movimento.codMovimento++;
+				System.out.println("Il codice del movimento è: "+movimento.codMovimento);
 				System.out.println("Codice tipologia movimento - ");
 				movimento.codTipologia=sc.nextLine();
 				System.out.print("Riferimento (opzionale) - ");
@@ -106,8 +106,8 @@ class Main {
 				System.out.print("Quantità - ");
 				movimento.qntProdotto=sc.nextInt();
 				sc.nextLine();
-				//System.out.print("Codice movimento - ");
 				movimento.codMovimento++;
+				System.out.println("Il codice del movimento è: "+movimento.codMovimento);
 				System.out.println("Codice tipologia movimento - ");
 				movimento.codTipologia=sc.nextLine();
 				System.out.print("Riferimento (opzionale) - ");
@@ -137,9 +137,25 @@ class Main {
 							System.out.println(elencoTipologie.get(tipologia));
 						}
 					}
-					/*if (!(elencoEntrate.get(i).riferimento.equals("")))  { RIFERIMENTO DA SISTEMARE
-						System.out.println("Il prodotto è stato importato da ");
-					}*/
+					if (!(elencoEntrate.get(i).riferimento.equals("")))  { 
+						if (elencoEntrate.get(i).codTipologia.equals("E01")) {
+							for (String controllo: elencoFornitori.keySet()) {
+								if (controllo.equals(elencoEntrate.get(i).riferimento)) {
+									System.out.println("Il prodotto è stato acquistato da: "+elencoFornitori.get(controllo));
+								}
+							}
+						} else if (elencoEntrate.get(i).codTipologia.equals("E02")) {
+							for (String controllo: elencoClienti.keySet()) {
+								if (controllo.equals(elencoEntrate.get(i).riferimento)) {
+									System.out.println("Il prodotto è stato reso da: "+elencoClienti.get(controllo));
+								}
+							}
+						} else if (elencoEntrate.get(i).codTipologia.equals("E03")) {
+							System.out.println("Il prodotto è stato fabbricato internamente.");
+						} else if (elencoEntrate.get(i).codTipologia.equals("E04")) {
+							System.out.println("Il prodotto è stato spostato da un altro magazzino");
+						}
+					}
 					
 				}
 				
@@ -159,9 +175,25 @@ class Main {
 							System.out.println(elencoTipologie.get(tipologia));
 						}
 					}
-					/*if (!(elencoUscite.get(i).riferimento.equals("")))  { RIFERIMENTO DA SISTEMARE
-						System.out.println("Il prodotto è stato importato da ");
-					}*/
+					if (!(elencoEntrate.get(i).riferimento.equals("")))  { 
+						if (elencoEntrate.get(i).codTipologia.equals("U01")) {
+							for (String controllo: elencoClienti.keySet()) {
+								if (controllo.equals(elencoEntrate.get(i).riferimento)) {
+									System.out.println("Il prodotto è stato venduto a: "+elencoClienti.get(controllo));
+								}
+							}
+						} else if (elencoEntrate.get(i).codTipologia.equals("U02")) {
+							for (String controllo: elencoClienti.keySet()) {
+								if (controllo.equals(elencoEntrate.get(i).riferimento)) {
+									System.out.println("Il prodotto è stato reso a: "+elencoFornitori.get(controllo));
+								}
+							}
+						} else if (elencoEntrate.get(i).codTipologia.equals("E03")) {
+							System.out.println("Il prodotto è stato sostituito in garanzia.");
+						} else if (elencoEntrate.get(i).codTipologia.equals("U04")) {
+							System.out.println("Il prodotto è stato spostato in un altro magazzino");
+						}
+					}
 					
 				}
 				
