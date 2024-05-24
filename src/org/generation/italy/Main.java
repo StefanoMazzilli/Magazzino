@@ -1,10 +1,12 @@
 package org.generation.italy;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Scanner;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Scanner;
 
 import org.generation.italy.model.Movimento;
 
@@ -36,10 +38,10 @@ class Main {
 			put("C04", "Cliente 4");
 		}};
 		HashMap <String, String> elencoProdotti= new HashMap<String, String>(){{
-			put("P01", "Prodotto 1");
-			put("P02", "Prodotto 2");
-			put("P03", "Prodotto 3");
-			put("P04", "Prodotto 4");
+			put("P01", "prodotto 1");
+			put("P02", "prodotto 2");
+			put("P03", "prodotto 3");
+			put("P04", "prodotto 4");
 		}};
 		HashMap <String, Integer> qntProdotti= new HashMap<String, Integer>(){{
 			put("P01", 0);
@@ -55,7 +57,7 @@ class Main {
 			put("U01", "Vendita a cliente");
 			put("U02", "Reso a fornitore");
 			put("U03", "Sostituzione in garanzia");
-			put("U04", "Spostamento a altro magazzino");
+			put("U04", "Spostamento ad altro magazzino");
 		}};
 		
 		//inizia la parte utente con la visualizzazione del menù
@@ -73,7 +75,7 @@ class Main {
 			case "1":
 				contatore++;//variabile contatore dei movimenti => serve per generare il codice movimento autoincrementante
 				//chiedo i dati del movimento
-				System.out.println("Inserimento i dati del movimento in entrata: ");
+				System.out.println("\nInserire i dati del movimento in entrata: ");
 				
 				System.out.print("Data - ");
 				movimento.data=LocalDate.parse(sc.next(), df);
@@ -84,15 +86,27 @@ class Main {
 				System.out.print("Quantità - ");
 				movimento.qntProdotto=sc.nextInt();
 				sc.nextLine();
+				while (movimento.qntProdotto<=0) {
+					System.out.println("Inserimento non valido!");
+					System.out.print("Quantità - ");
+					movimento.qntProdotto=sc.nextInt();
+					sc.nextLine();
+				}
 				
 				movimento.codMovimento=contatore;
 				System.out.println("Il codice del movimento è: "+movimento.codMovimento);
 				
 				movimento.codTipologia=verificaCodice(elencoTipologie, sc, "Codice tipologia movimento - ");
+				while (movimento.codTipologia.startsWith("U")) {
+					//ulteriore controllo che non venga inserito un codice di movimento in uscita
+					movimento.codTipologia=verificaCodice(elencoTipologie, sc, "Inserimento non valido! Stai inserendo un'entrata, non un'uscita! Riprova! ");
+				}
 				if (movimento.codTipologia.equals("E01")) {
 					movimento.riferimento=verificaCodice(elencoFornitori, sc, "Riferimento - ");
 				} else if (movimento.codTipologia.equals("E02")) {
 					movimento.riferimento=verificaCodice(elencoClienti, sc, "Riferimento - ");
+				} else {
+					movimento.riferimento="";
 				}
 				elencoEntrate.add(movimento);
 				//aggiorno la quantità del prodotto in entrata
@@ -107,7 +121,7 @@ class Main {
 			case "2":
 				contatore++; //aggiorno il contatore dei movimenti
 				//chiedo i dati del movimento in uscita
-				System.out.println("Inserimento i dati del movimento in uscita: ");
+				System.out.println("Inserire i dati del movimento in uscita: ");
 				
 				System.out.print("Data - ");
 				movimento.data=LocalDate.parse(sc.next(), df);
@@ -118,15 +132,27 @@ class Main {
 				System.out.print("Quantità - ");
 				movimento.qntProdotto=sc.nextInt();
 				sc.nextLine();
+				while (movimento.qntProdotto<=0) {
+					System.out.println("Inserimento non valido!");
+					System.out.print("Quantità - ");
+					movimento.qntProdotto=sc.nextInt();
+					sc.nextLine();
+				}
 				
 				movimento.codMovimento=contatore;
 				System.out.println("Il codice del movimento è: "+movimento.codMovimento);
 				
 				movimento.codTipologia=verificaCodice(elencoTipologie, sc, "Codice tipologia movimento - ");
+				while (movimento.codTipologia.startsWith("E")) {
+					//ulteriore controllo che non venga inserito un codice di movimento in entrata
+					movimento.codTipologia=verificaCodice(elencoTipologie, sc, "Inserimento non valido! Stai inserendo un'uscita, non un'entrata! Riprova! ");
+				}
 				if (movimento.codTipologia.equals("U01")) {
 					movimento.riferimento=verificaCodice(elencoClienti, sc, "Riferimento - ");
 				} else if (movimento.codTipologia.equals("U02")) {
 					movimento.riferimento=verificaCodice(elencoFornitori, sc, "Riferimento - ");
+				} else {
+					movimento.riferimento="";
 				}
 				
 				elencoUscite.add(movimento);
@@ -159,7 +185,7 @@ class Main {
 						}
 					}
 					//inserimento del riferimento se è presente
-					if (!(elencoEntrate.get(i).riferimento.equals("")))  { 
+					if (!(elencoEntrate.get(i).riferimento.isEmpty()))  { 
 						if (elencoEntrate.get(i).codTipologia.equals("E01")) {
 							//decodifico il codice del fornitore
 							for (String controllo: elencoFornitori.keySet()) {
@@ -199,7 +225,7 @@ class Main {
 						}
 					}
 					//stampo il riferimento se presente
-					if (!(elencoUscite.get(i).riferimento.equals("")))  { 
+					if (!(elencoUscite.get(i).riferimento.isEmpty()))  { 
 						if (elencoUscite.get(i).codTipologia.equals("U01")) {
 							//decodifico il codice cliente
 							for (String controllo: elencoClienti.keySet()) {
@@ -209,7 +235,7 @@ class Main {
 							}
 						} else if (elencoUscite.get(i).codTipologia.equals("U02")) {
 							//decodifico il codice fornitore
-							for (String controllo: elencoClienti.keySet()) {
+							for (String controllo: elencoFornitori.keySet()) {
 								if (controllo.equals(elencoUscite.get(i).riferimento)) {
 									System.out.println("Il prodotto è stato reso a: "+elencoFornitori.get(controllo));
 								}
@@ -220,10 +246,32 @@ class Main {
 				}
 				break;
 			case "5":
-				System.out.print("Inserire il codice del prodotto di cui controllare la giacenza:");
-				String codice=sc.nextLine();
-				//cerco la quantità del prodotto in base al codice prodotto inserito
-				//DA FARE: cercare la quantità prodotto in base al NOME del prodotto inserito!
+				
+				System.out.println("Come lo vuoi cercare il prodotto?\n1) Nome\n2) Codice\n");
+				String ricerca=sc.nextLine().toLowerCase();
+				String codice= new String();
+				switch (ricerca) {
+				case "1":
+					//accetto l'inserimento sia del numero che della stringa
+				case "nome":
+					System.out.print("Inserire il nome del prodotto da cercare: ");
+					String nomeCercare=sc.nextLine().toLowerCase();
+					while (!elencoProdotti.containsValue(nomeCercare)) {
+						System.out.println("Il prodotto cercato non è presente nel database. Riprova con un altro inserimento.");
+						nomeCercare=sc.nextLine().toLowerCase();
+					}
+					codice=trovaChiave(elencoProdotti, nomeCercare);
+					break;
+				case "2":
+					//accetto l'inserimento sia del numero che della stringa
+				case "codice":
+					codice=verificaCodice(elencoProdotti, sc, "Inserire il codice del prodotto di cui controllare la giacenza: ");
+					break;
+				default:
+					System.out.println("Inserimento non valido!");
+				}
+				
+				//cerco la quantità del prodotto in base al codice o al nome prodotto inserito
 				for (String chiave: qntProdotti.keySet()) {
 					if (chiave.equals(codice)) {
 						System.out.println("La giacenza del prodotto attualmente è: "+qntProdotti.get(chiave));
@@ -247,8 +295,8 @@ class Main {
 	private static String verificaCodice (HashMap<String, String> elencoValori, Scanner sc, String messaggio) {
 		String codice;
 		do {
-			System.out.println(messaggio);
-			codice=sc.nextLine();
+			System.out.print(messaggio);
+			codice=sc.nextLine().toUpperCase();
 			
 			if(!elencoValori.containsKey(codice)) {
 				System.out.println("Codice non valido!");
@@ -259,6 +307,17 @@ class Main {
 		
 		return codice;
 	}
-	
+	private static String trovaChiave (HashMap<String, String> elencoValori, String valore) {
+		String chiave= new String();
+		//scorro per ogni chiave del hashmap cercando quella giusta
+		for (String chiaveCercare: elencoValori.keySet()) {
+			//confronto il valore per la data chiave con quello inserito dall'utente
+			if (valore.equalsIgnoreCase(elencoValori.get(chiaveCercare))) {
+				chiave=chiaveCercare; //estraggo la chiave giusta ignorando le altre
+			}
+		}
+		//restituisco la chiave
+		return chiave;
+	}
 
 }
