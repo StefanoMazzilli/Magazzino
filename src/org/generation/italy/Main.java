@@ -19,7 +19,8 @@ class Main {
 		ArrayList <Movimento> elencoUscite= new ArrayList<Movimento>();
 		Movimento movimento;
 		String risposta= new String();
-		int programma, contatore=0;
+		int contatore=0;
+		String programma=new String();
 		boolean trovato=false;
 		Scanner sc= new Scanner(System.in);
 		HashMap <String, String> elencoFornitori= new HashMap<String, String>() {{
@@ -64,34 +65,35 @@ class Main {
 			//chiedo quale operazione fare
 			movimento= new Movimento();
 			System.out.println("Selezionare il programma da usare immettendo il relativo codice");
-			System.out.println("\n1) Inserimento movimenti in entrata\n2) Inserimento movimenti in uscita\n3) Visualizza i movimenti in entrata\n4) Visualizzare i movimenti in uscita\n5) Giacenza del prodotto");
-			programma= sc.nextInt();
-			sc.nextLine();
-			//controllo l'input dell'utente
-			while (programma!=1&&programma!=2&&programma!=3&&programma!=4&&programma!=5) {
-				System.out.println("Inserimento non valido.\n1) Inserimento movimenti in entrata \n2) Inserimento movimenti in uscita \n3) Visualizza i movimenti in entrata \n4) Visualizzare i movimenti in uscita \n5) Giacenza del prodotto");
-				programma=sc.nextInt();
-				sc.nextLine();
-			}
+			System.out.println("\n1) Inserimento movimenti in entrata\n2) Inserimento movimenti in uscita\n3) Visualizza i movimenti in entrata\n4) Visualizzare i movimenti in uscita\n5) Giacenza del prodotto\n6) Esci");
+			programma= sc.nextLine();
 			
-			if (programma==1) {
+			
+			switch (programma) {
+			case "1":
 				contatore++;//variabile contatore dei movimenti => serve per generare il codice movimento autoincrementante
 				//chiedo i dati del movimento
 				System.out.println("Inserimento i dati del movimento in entrata: ");
+				
 				System.out.print("Data - ");
 				movimento.data=LocalDate.parse(sc.next(), df);
 				sc.nextLine();
-				System.out.print("Codice prodotto - ");
-				movimento.codiceProdotto=sc.nextLine();
+				
+				movimento.codiceProdotto=verificaCodice(elencoProdotti, sc, "Codice prodotto - ");
+						
 				System.out.print("Quantità - ");
 				movimento.qntProdotto=sc.nextInt();
 				sc.nextLine();
+				
 				movimento.codMovimento=contatore;
 				System.out.println("Il codice del movimento è: "+movimento.codMovimento);
-				System.out.println("Codice tipologia movimento - ");
-				movimento.codTipologia=sc.nextLine();
-				System.out.print("Riferimento (opzionale) - ");
-				movimento.riferimento=sc.nextLine();
+				
+				movimento.codTipologia=verificaCodice(elencoTipologie, sc, "Codice tipologia movimento - ");
+				if (movimento.codTipologia.equals("E01")) {
+					movimento.riferimento=verificaCodice(elencoFornitori, sc, "Riferimento - ");
+				} else if (movimento.codTipologia.equals("E02")) {
+					movimento.riferimento=verificaCodice(elencoClienti, sc, "Riferimento - ");
+				}
 				elencoEntrate.add(movimento);
 				//aggiorno la quantità del prodotto in entrata
 				for (String chiave: qntProdotti.keySet()) {
@@ -101,24 +103,32 @@ class Main {
 						qntProdotti.replace(chiave, qnt);
 					}
 				}
-			} else if (programma==2) {
+				break;
+			case "2":
 				contatore++; //aggiorno il contatore dei movimenti
 				//chiedo i dati del movimento in uscita
 				System.out.println("Inserimento i dati del movimento in uscita: ");
+				
 				System.out.print("Data - ");
 				movimento.data=LocalDate.parse(sc.next(), df);
 				sc.nextLine();
-				System.out.print("Codice prodotto - ");
-				movimento.codiceProdotto=sc.nextLine();
+				
+				movimento.codiceProdotto=verificaCodice(elencoProdotti, sc, "Codice prodotto - ");
+				
 				System.out.print("Quantità - ");
 				movimento.qntProdotto=sc.nextInt();
 				sc.nextLine();
+				
 				movimento.codMovimento=contatore;
 				System.out.println("Il codice del movimento è: "+movimento.codMovimento);
-				System.out.println("Codice tipologia movimento - ");
-				movimento.codTipologia=sc.nextLine();
-				System.out.print("Riferimento (opzionale) - ");
-				movimento.riferimento=sc.nextLine();
+				
+				movimento.codTipologia=verificaCodice(elencoTipologie, sc, "Codice tipologia movimento - ");
+				if (movimento.codTipologia.equals("U01")) {
+					movimento.riferimento=verificaCodice(elencoClienti, sc, "Riferimento - ");
+				} else if (movimento.codTipologia.equals("U02")) {
+					movimento.riferimento=verificaCodice(elencoFornitori, sc, "Riferimento - ");
+				}
+				
 				elencoUscite.add(movimento);
 				//aggiorno la quantità del prodotto in uscita
 				for (String chiave: qntProdotti.keySet()) {
@@ -128,7 +138,8 @@ class Main {
 						qntProdotti.replace(chiave, qnt);
 					}
 				}
-			} else if (programma==3) {
+				break;
+			case "3":
 				System.out.println("Elenco dei movimenti in entrata:\n");
 				for (int i=0; i<elencoEntrate.size(); i++) {
 					//ciclo for per mostrare i vari movimenti in entrata
@@ -167,8 +178,8 @@ class Main {
 					}
 					
 				}
-				
-			} else if (programma==4) {
+				break;
+			case "4":
 				System.out.println("Elenco dei movimenti in uscita:\n");
 				for (int i=0; i<elencoUscite.size(); i++) {
 					//ciclo per mostrare i movimenti in uscita
@@ -207,8 +218,8 @@ class Main {
 					}
 					
 				}
-				
-			} else if (programma==5) {
+				break;
+			case "5":
 				System.out.print("Inserire il codice del prodotto di cui controllare la giacenza:");
 				String codice=sc.nextLine();
 				//cerco la quantità del prodotto in base al codice prodotto inserito
@@ -218,13 +229,36 @@ class Main {
 						System.out.println("La giacenza del prodotto attualmente è: "+qntProdotti.get(chiave));
 					}
 				}
-				
+				break;
+			case "6":
+				System.out.println("Arrivederci!");
+				break;
+			default:
+				System.out.println("Inserimento non valido.");
+				break;
 			}
 			
-			System.out.println("Vuoi fare altro?");
-			risposta=sc.nextLine();
-		} while (risposta.substring(0, 1).equals("s"));
-		System.out.println("Arrivederci!");
+			System.out.println("Premere invio per continuare");
+			sc.nextLine();
+			
+		} while (!programma.equals("6"));
+		
 	}
+	private static String verificaCodice (HashMap<String, String> elencoValori, Scanner sc, String messaggio) {
+		String codice;
+		do {
+			System.out.println(messaggio);
+			codice=sc.nextLine();
+			
+			if(!elencoValori.containsKey(codice)) {
+				System.out.println("Codice non valido!");
+			}
+		}while (!elencoValori.containsKey(codice));
+		
+		System.out.println("Hai selezionato: "+elencoValori.get(codice));
+		
+		return codice;
+	}
+	
 
 }
